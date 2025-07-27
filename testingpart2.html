@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>testing by agil tampan</title>
+    <style>
+        /* CSS Bertema Biru dan Putih */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f8ff; /* Biru sangat muda */
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: #1e90ff; /* Biru terang */
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+
+        .container {
+            flex: 1;
+            padding: 20px;
+            max-width: 900px;
+            margin: 20px auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        #date-display {
+            text-align: center;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            color: #007bff; /* Biru standar */
+            font-weight: bold;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .input-group input[type="text"],
+        .input-group select {
+            width: calc(100% - 22px);
+            padding: 10px;
+            border: 1px solid #add8e6; /* Biru muda */
+            border-radius: 5px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input[type="text"]:focus,
+        .input-group select:focus {
+            border-color: #1e90ff; /* Biru terang */
+            outline: none;
+        }
+
+        button {
+            background-color: #32cd32; /* Hijau limau untuk "Hadir" */
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease;
+            margin-right: 10px;
+        }
+
+        button.sakit {
+            background-color: #ffc107; /* Kuning untuk "Sakit" */
+        }
+
+        button.izin {
+            background-color: #17a2b8; /* Biru kehijauan untuk "Izin" */
+        }
+
+        button.alpa {
+            background-color: #dc3545; /* Merah untuk "Alpa" */
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+        }
+
+        table th, table td {
+            border: 1px solid #add8e6; /* Biru muda */
+            padding: 12px;
+            text-align: left;
+        }
+
+        table th {
+            background-color: #e0f2f7; /* Biru sangat muda */
+            color: #007bff; /* Biru standar */
+            font-weight: bold;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        table tr:hover {
+            background-color: #e6f7ff; /* Biru sangat sangat muda */
+        }
+
+        footer {
+            background-color: #1e90ff; /* Biru terang */
+            color: white;
+            text-align: center;
+            padding: 15px 0;
+            margin-top: 30px;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Sistem Absensi Siswa</h1>
+    </header>
+
+    <div class="container">
+        <div id="date-display"></div>
+
+        <div class="input-group">
+            <label for="studentName">Nama Siswa:</label>
+            <input type="text" id="studentName" placeholder="Masukkan nama siswa" list="studentList">
+            <datalist id="studentList">
+                </datalist>
+        </div>
+
+        <div class="input-group">
+            <label for="studentAbsen">Nomor Absen:</label>
+            <input type="text" id="studentAbsen" placeholder="Masukkan Nomor Absen siswa">
+        </div>
+
+        <div class="input-group">
+            <label for="absenStatus">Status Absensi:</label>
+            <select id="absenStatus">
+                <option value="Hadir">Hadir</option>
+                <option value="Sakit">Sakit</option>
+                <option value="Izin">Izin</option>
+                <option value="Alpa">Alpa</option>
+            </select>
+        </div>
+
+        <button onclick="addAttendance()">Tambahkan Absensi</button>
+
+        <h2>Daftar Absensi Hari Ini</h2>
+        <table id="attendanceTable">
+            <thead>
+                <tr>
+                    <th>Waktu</th>
+                    <th>Nomor Absen</th>
+                    <th>Nama Siswa</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                </tbody>
+        </table>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Sistem Absensi Siswa. Dibuat dengan HTML, CSS, & JavaScript.</p>
+    </footer>
+
+    <script>
+        // JavaScript untuk Fungsionalitas Absensi
+        document.addEventListener('DOMContentLoaded', function() {
+            displayCurrentDate();
+            loadStudentData(); // Muat data siswa yang ada (contoh: dari localStorage)
+            loadAttendanceData(); // Muat data absensi yang sudah ada
+        });
+
+        function displayCurrentDate() {
+            const dateDisplay = document.getElementById('date-display');
+            const today = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            dateDisplay.textContent = today.toLocaleDateString('id-ID', options);
+        }
+
+        function addAttendance() {
+            const studentNameInput = document.getElementById('studentName');
+            const studentAbsenInput = document.getElementById('studentAbsen');
+            const absenStatusSelect = document.getElementById('absenStatus');
+            const attendanceTableBody = document.querySelector('#attendanceTable tbody');
+
+            const studentName = studentNameInput.value.trim();
+            const studentAbsen = studentAbsenInput.value.trim();
+            const absenStatus = absenStatusSelect.value;
+            const currentTime = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+            if (studentName === '' || studentAbsen === '') {
+                alert('Nama Siswa dan Nomor Absen tidak boleh kosong!');
+                return;
+            }
+
+            const newRow = attendanceTableBody.insertRow();
+            const timeCell = newRow.insertCell(0);
+            const absenCell = newRow.insertCell(1);
+            const nameCell = newRow.insertCell(2);
+            const statusCell = newRow.insertCell(3);
+
+            timeCell.textContent = currentTime;
+            absenCell.textContent = studentAbsen;
+            nameCell.textContent = studentName;
+            statusCell.textContent = absenStatus;
+
+            // Bersihkan input setelah ditambahkan
+            studentNameInput.value = '';
+            studentAbsenInput.value = '';
+            absenStatusSelect.value = 'Hadir'; // Reset status ke "Hadir"
+
+            saveAttendanceData({
+                time: currentTime,
+                absen: studentAbsen,
+                name: studentName,
+                status: absenStatus
+            });
+        }
+
+        function saveAttendanceData(data) {
+            let attendance = JSON.parse(localStorage.getItem('attendanceData')) || [];
+            attendance.push(data);
+            localStorage.setItem('attendanceData', JSON.stringify(attendance));
+        }
+
+        function loadAttendanceData() {
+            const attendanceTableBody = document.querySelector('#attendanceTable tbody');
+            let attendance = JSON.parse(localStorage.getItem('attendanceData')) || [];
+
+            // Filter data absensi untuk hari ini
+            const today = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+            const filteredAttendance = attendance.filter(item => {
+                // Perlu penyesuaian di sini jika 'item.time' tidak menyimpan informasi tanggal lengkap
+                // Untuk saat ini, kita asumsikan absensi tersimpan per hari dan waktu.
+                // Jika ingin absensi per hari, Anda perlu menyimpan tanggal lengkap di 'item.time'
+                // atau menambahkan properti 'date' terpisah.
+                // Contoh: const itemDate = new Date(item.time).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+                // return itemDate === today;
+                return true; // Untuk demo, tampilkan semua absensi yang ada di localStorage
+            });
+
+
+            attendanceTableBody.innerHTML = ''; // Bersihkan tabel sebelum memuat
+
+            filteredAttendance.forEach(data => {
+                const newRow = attendanceTableBody.insertRow();
+                newRow.insertCell(0).textContent = data.time;
+                newRow.insertCell(1).textContent = data.absen;
+                newRow.insertCell(2).textContent = data.name;
+                newRow.insertCell(3).textContent = data.status;
+            });
+        }
+
+        // Contoh fungsi untuk menyimpan dan memuat daftar siswa (opsional, bisa diganti dengan database)
+        function loadStudentData() {
+            // Anda bisa memuat daftar siswa dari sumber data lain di sini,
+            // seperti array JavaScript atau data dari server.
+            // Untuk contoh ini, kita akan menggunakan array statis.
+            const students = [
+                { absen: '01', name: 'Budi Santoso' },
+                { absen: '02', name: 'Siti Aminah' },
+                { absen: '03', name: 'Joko Susilo' },
+                { absen: '04', name: 'Ani Wijaya' }
+            ];
+
+            const studentListDatalist = document.getElementById('studentList');
+            students.forEach(student => {
+                const option = document.createElement('option');
+                option.value = student.name;
+                option.setAttribute('data-absen', student.absen);
+                studentListDatalist.appendChild(option);
+            });
+
+            // Auto-fill Nomor Absen ketika nama siswa dipilih dari datalist
+            const studentNameInput = document.getElementById('studentName');
+            studentNameInput.addEventListener('input', function() {
+                const selectedOption = Array.from(studentListDatalist.options).find(option => option.value === this.value);
+                if (selectedOption) {
+                    document.getElementById('studentAbsen').value = selectedOption.getAttribute('data-absen');
+                } else {
+                    document.getElementById('studentAbsen').value = ''; // Kosongkan Nomor Absen jika tidak ada yang cocok
+                }
+            });
+        }
+
+        // Fungsi untuk membersihkan data absensi (opsional, untuk pengembangan/pengujian)
+        function clearAttendanceData() {
+            localStorage.removeItem('attendanceData');
+            loadAttendanceData(); // Muat ulang tabel (akan kosong)
+            alert('Data absensi telah dihapus!');
+        }
+    </script>
+</body>
+</html>
